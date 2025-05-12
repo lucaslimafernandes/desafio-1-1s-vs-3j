@@ -18,6 +18,11 @@ type Team struct {
 	Projects []Project
 }
 
+type logJSON struct {
+	Date   string `json:"date"`
+	Action string `json:"action"`
+}
+
 type Log struct {
 	Date   time.Time `json:"date"`
 	Action string    `json:"action"`
@@ -35,14 +40,8 @@ type User struct {
 }
 
 func (l *Log) UnmarshalJSON(data []byte) error {
-	type Alias Log
-	aux := &struct {
-		Date string `json:"date"`
-		*Alias
-	}{
-		Alias: (*Alias)(l),
-	}
 
+	var aux logJSON
 	if err := json.Unmarshal(data, &aux); err != nil {
 		return err
 	}
@@ -53,5 +52,6 @@ func (l *Log) UnmarshalJSON(data []byte) error {
 	}
 
 	l.Date = parsedDate
+	l.Action = aux.Action
 	return nil
 }
